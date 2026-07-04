@@ -1,19 +1,8 @@
 import { monthKey } from "./dates";
+import { calendarMonthRange, containsDate, isSpending, type DateRange } from "./period";
 import type { Category, Transaction } from "./types";
 
-/**
- * A transaction counts as spending when money leaves the account, it is not an
- * internal transfer, and its category (if any) is not income/transfer.
- * Internal transfers are excluded from spending totals by default per the
- * product guardrail, while remaining available for balance calculations.
- */
-export function isSpending(tx: Transaction, categories: Map<string, Category>): boolean {
-  if (tx.transferGroupId) return false;
-  if (tx.amountCents >= 0) return false;
-  const behavior = tx.categoryId ? categories.get(tx.categoryId)?.behavior : undefined;
-  if (behavior === "transfer" || behavior === "income") return false;
-  return true;
-}
+export { isSpending };
 
 export interface Bucket {
   key: string;
@@ -22,8 +11,8 @@ export interface Bucket {
   count: number;
 }
 
-export interface MonthlySummary {
-  month: string; // YYYY-MM
+export interface PeriodSummary {
+  range: DateRange;
   totalSpendingCents: number;
   totalIncomeCents: number;
   byCategory: Bucket[];
@@ -31,22 +20,36 @@ export interface MonthlySummary {
   topMerchants: Bucket[];
 }
 
+/** Back-compat alias: a monthly summary is just a period summary. */
+export type MonthlySummary = PeriodSummary & { month: string };
+
 export interface SummaryContext {
   categories: Map<string, Category>;
   accountName: (accountId: string) => string;
   topMerchantsLimit?: number;
 }
 
-/** Build the default monthly dashboard payload for a single month. */
-export function summarizeMonth(
+/**
+ * Build the dashboard payload for an inclusive date range. This is the
+ * period-based primitive; {@link summarizeMonth} is a thin calendar-month
+ * wrapper preserved for backward compatibility.
+ *
+ * When `preFiltered` is set the transactions are assumed to already match the
+ * range and any active filters, so only the range's own membership test is
+ * skipped — spending/income classification still applies.
+ */
+export function summarizePeriod(
   transactions: Transaction[],
-  month: string,
+  range: DateRange,
   ctx: SummaryContext,
-): MonthlySummary {
-  const inMonth = transactions.filter((t) => monthKey(t.bookingDate) === month);
-  const spending = inMonth.filter((t) => isSpending(t, ctx.categories));
+  preFiltered = false,
+): PeriodSummary {
+  const inRange = preFiltered
+    ? transactions
+    : transactions.filter((t) => containsDate(range, t.bookingDate));
+  const spending = inRange.filter((t) => isSpending(t, ctx.categories));
 
-  const income = inMonth
+  const income = inRange
     .filter((t) => t.amountCents > 0 && !t.transferGroupId)
     .reduce((acc, t) => acc + t.amountCents, 0);
 
@@ -67,13 +70,52 @@ export function summarizeMonth(
   ).slice(0, ctx.topMerchantsLimit ?? 10);
 
   return {
-    month,
+    range,
     totalSpendingCents: spending.reduce((acc, t) => acc + Math.abs(t.amountCents), 0),
     totalIncomeCents: income,
     byCategory,
     byAccount,
     topMerchants,
   };
+}
+
+/** Build the default monthly dashboard payload for a single calendar month. */
+export function summarizeMonth(
+  transactions: Transaction[],
+  month: string,
+  ctx: SummaryContext,
+): MonthlySummary {
+  return { month, ...summarizePeriod(transactions, calendarMonthRange(month), ctx) };
+}
+
+export interface PieSlice {
+  key: string;
+  label: string;
+  amountCents: number;
+  /** Fraction of the total in [0, 1]. */
+  fraction: number;
+}
+
+/**
+ * Turn spending buckets into pie slices, collapsing the long tail beyond
+ * `maxSlices` into a single "Autres" slice so charts stay readable.
+ */
+export function toPieSlices(buckets: Bucket[], maxSlices = 8): PieSlice[] {
+  const total = buckets.reduce((acc, b) => acc + b.amountCents, 0);
+  if (total === 0) return [];
+  const head = buckets.slice(0, maxSlices);
+  const tail = buckets.slice(maxSlices);
+  const slices: PieSlice[] = head.map((b) => ({
+    key: b.key,
+    label: b.label,
+    amountCents: b.amountCents,
+    fraction: b.amountCents / total,
+  }));
+  if (tail.length) {
+    const rest = tail.reduce((acc, b) => acc + b.amountCents, 0);
+    slices.push({ key: "__autres__", label: "Autres", amountCents: rest, fraction: rest / total });
+  }
+  return slices;
 }
 
 /** List available month keys present in the data, most recent first. */

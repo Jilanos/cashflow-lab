@@ -1,12 +1,13 @@
 ## req_002_ameliorer_periodes_filtres_dashboard_depenses - Ameliorer les periodes et filtres du dashboard depenses
 > From version: 0.1.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: Remplacer le mois calendrier strict par des periodes d'analyse plus utiles, ajouter filtres de depenses, plages libres et vues camemberts.
 > Confidence: high
 > Complexity: M
 > Theme: analytics
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
+> Non-semantic edit: Added AC traceability matrix after task_004 closeout (no scope/confidence change).
 
 # Needs
 - Ameliorer l'analyse des depenses pour eviter que le mois calendrier strict rende les revenus et depenses mensuels illisibles.
@@ -43,6 +44,14 @@
 - `src/domain/dates.ts`
 - `src/app/views/DashboardView.tsx`
 - `src/domain/categories.ts`
+
+# AC Traceability
+- AC1 -> `task_004_ameliorer_les_periodes_et_filtres_du_dashboard_depenses`. Proof: `src/domain/period.ts` (`budgetMonthRange`, `calendarMonthRange`, `periodOf`), `src/domain/period.test.ts`.
+- AC2 -> `task_004_ameliorer_les_periodes_et_filtres_du_dashboard_depenses`. Proof: `src/domain/period.ts` (`quickRange`, `shiftPeriod`, custom range), `src/app/views/DashboardView.tsx`, `src/domain/period.test.ts`.
+- AC3 -> `task_004_ameliorer_les_periodes_et_filtres_du_dashboard_depenses`. Proof: `src/domain/period.ts` (`filterTransactions`), `src/app/views/DashboardView.tsx`, `src/domain/period.test.ts`.
+- AC4 -> `task_004_ameliorer_les_periodes_et_filtres_du_dashboard_depenses`. Proof: `src/domain/analysis.ts` (`summarizePeriod`), `src/app/views/DashboardView.tsx` share one filtered set.
+- AC5 -> `task_004_ameliorer_les_periodes_et_filtres_du_dashboard_depenses`. Proof: `src/domain/analysis.ts` (`toPieSlices`), `src/app/views/PieChart.tsx`, `src/domain/period.test.ts`.
+- AC6 -> `task_004_ameliorer_les_periodes_et_filtres_du_dashboard_depenses`. Proof: `npm test` passed 62 tests, `npm run build` passed, `logics-manager lint --require-status` passed.
 
 # AI Context
 - Summary: Add budget-month/date-range analytics, dashboard filters, and pie-chart views for spending analysis.

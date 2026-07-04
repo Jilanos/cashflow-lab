@@ -1,10 +1,10 @@
 ## item_004_ameliorer_les_periodes_et_filtres_du_dashboard_depenses - Ameliorer les periodes et filtres du dashboard depenses
 > From version: 0.1.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 90%
 > Confidence: 85%
-> Progress: 0%
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -74,6 +74,7 @@ Le dashboard depenses est limite au mois calendrier. Cela rend l'analyse instabl
 - Hybrid rationale: Derived from request `req_002_ameliorer_periodes_filtres_dashboard_depenses` and kept bounded to one coherent analytics slice.
 - Source file: `logics/request/req_002_ameliorer_periodes_filtres_dashboard_depenses.md`.
 - Generated locally by logics-manager.
+- Task `task_004_ameliorer_les_periodes_et_filtres_du_dashboard_depenses` was finished via `logics-manager flow finish task` on 2026-07-05.
 
 # Tasks
 - `task_004_ameliorer_les_periodes_et_filtres_du_dashboard_depenses`
