@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { AppStore, ImportOutcome } from "../store";
+import { readFileSmart } from "../../parsers/decode";
 
 export function ImportView({ store }: { store: AppStore }) {
   const [accountId, setAccountId] = useState(store.state.accounts[0]?.id ?? "");
@@ -12,7 +13,7 @@ export function ImportView({ store }: { store: AppStore }) {
     setError(null);
     setOutcome(null);
     try {
-      const text = await file.text();
+      const text = await readFileSmart(file);
       const result = await store.importText(accountId, file.name, text);
       setOutcome(result);
     } catch (e) {
@@ -60,10 +61,22 @@ export function ImportView({ store }: { store: AppStore }) {
           </div>
           {busy && <p className="muted">Import en cours...</p>}
           {outcome && (
-            <div className="notice ok">
-              Import {outcome.bank}: {outcome.added} nouvelle(s) transaction(s), {outcome.skipped} doublon(s) ignore(s).
-              {outcome.warnings.length > 0 && ` ${outcome.warnings.length} ligne(s) non lue(s).`}
-            </div>
+            <>
+              <div className={`notice ${outcome.added > 0 ? "ok" : "warn"}`}>
+                Import {outcome.bank}: {outcome.added} nouvelle(s) transaction(s), {outcome.skipped} doublon(s) ignore(s).
+                {outcome.warnings.length > 0 && ` ${outcome.warnings.length} ligne(s) non lue(s).`}
+              </div>
+              {outcome.warnings.length > 0 && (
+                <div className="notice warn small">
+                  <strong>Detail:</strong>
+                  <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+                    {outcome.warnings.slice(0, 5).map((w, i) => (
+                      <li key={i} style={{ wordBreak: "break-word" }}>{w}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
           )}
           {error && <div className="notice warn">Erreur: {error}</div>}
         </>

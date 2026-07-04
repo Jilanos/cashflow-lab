@@ -61,11 +61,15 @@ export function parseTabular(
 
   const headerIdx = findHeaderRow(grid, spec);
   if (headerIdx === -1) {
+    const firstLines = grid.slice(0, 5).map((r) => r.join(delimiter)).join(" | ");
+    const delimLabel = delimiter === "\t" ? "TAB" : delimiter;
     return {
       rows: [],
       reportedBalanceCents,
       reportedBalanceDate,
-      warnings: ["Impossible de localiser l'en-tete des colonnes."],
+      warnings: [
+        `En-tete des colonnes introuvable (separateur detecte: "${delimLabel}"). Premieres lignes: ${firstLines}`,
+      ],
     };
   }
   const header = grid[headerIdx].map(norm);
