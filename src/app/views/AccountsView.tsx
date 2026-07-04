@@ -32,8 +32,12 @@ export function AccountsView({ store }: { store: AppStore }) {
       name: name.trim() || `${bank} ${type}`,
       currency: "EUR",
     };
-    await store.addAccount(account);
-    setName("");
+    try {
+      await store.addAccount(account);
+      setName("");
+    } catch {
+      // Store-level error banner explains the persistence failure.
+    }
   };
 
   return (
@@ -63,7 +67,7 @@ export function AccountsView({ store }: { store: AppStore }) {
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: CA Courant commun" />
         </div>
         <div className="row" style={{ marginTop: 12 }}>
-          <button onClick={add}>Ajouter le compte</button>
+          <button onClick={() => void add()}>Ajouter le compte</button>
         </div>
       </div>
 

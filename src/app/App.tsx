@@ -40,6 +40,13 @@ export function App({ storage }: { storage: StorageAdapter }) {
         ))}
       </nav>
 
+      {store.error && (
+        <div className="notice warn">
+          Erreur: {store.error}{" "}
+          <button className="secondary" onClick={store.clearError}>Fermer</button>
+        </div>
+      )}
+
       {!store.ready ? (
         <div className="panel"><p className="muted">Chargement de la base locale...</p></div>
       ) : tab === "accounts" ? (

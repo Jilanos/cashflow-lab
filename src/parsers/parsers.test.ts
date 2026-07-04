@@ -29,6 +29,20 @@ describe("creditAgricoleParser", () => {
     expect(result.reportedBalanceCents).toBe(125040);
     expect(result.reportedBalanceDate).toBe("2024-03-31");
   });
+
+  it("parses semicolon tables even when the preamble contains more commas", () => {
+    const withCommaPreamble = `Export bancaire, compte courant, periode mars
+Commentaire, avec, beaucoup, de, virgules
+Date;Libelle;Debit euros;Credit euros
+05/03/2024;PRLV LOYER FONCIA;540,00;
+12/03/2024;VIREMENT SALAIRE DEMO SA;;2 300,00
+`;
+    const parsed = creditAgricoleParser.parse(withCommaPreamble);
+
+    expect(parsed.rows).toHaveLength(2);
+    expect(parsed.rows[0].amountCents).toBe(-54000);
+    expect(parsed.warnings).toEqual([]);
+  });
 });
 
 describe("fortuneoParser", () => {

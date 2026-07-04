@@ -110,7 +110,7 @@ export function DashboardView({ store }: { store: AppStore }) {
                 <td>
                   <select
                     value={t.categoryId ?? ""}
-                    onChange={(e) => void store.setCategory(t.id, e.target.value || undefined)}
+                    onChange={(e) => void store.setCategory(t.id, e.target.value || undefined).catch(() => undefined)}
                   >
                     <option value="">(non categorise)</option>
                     {store.state.categories.map((c) => (

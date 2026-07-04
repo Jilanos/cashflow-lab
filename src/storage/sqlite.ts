@@ -1,7 +1,7 @@
 import type { Database } from "sql.js";
 import { SCHEMA_SQL } from "./schema";
 import type { AppState } from "../domain/state";
-import { emptyState } from "../domain/state";
+import { emptyState, withDefaultTaxonomy } from "../domain/state";
 import type {
   Account,
   Category,
@@ -134,8 +134,10 @@ export function loadState(db: Database): AppState {
     recurringRules: readAll(db, recurringRules),
     events: readAll(db, events),
   };
-  // Seed defaults on a fresh database.
-  if (loaded.categories.length === 0) loaded.categories = base.categories;
-  if (loaded.categoryRules.length === 0) loaded.categoryRules = base.categoryRules;
-  return loaded;
+  // Seed or migrate default taxonomy while preserving user-edited entries.
+  return withDefaultTaxonomy({
+    ...loaded,
+    categories: loaded.categories.length === 0 ? base.categories : loaded.categories,
+    categoryRules: loaded.categoryRules.length === 0 ? base.categoryRules : loaded.categoryRules,
+  });
 }

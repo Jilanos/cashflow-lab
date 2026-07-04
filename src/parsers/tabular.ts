@@ -39,8 +39,14 @@ export function parseTabular(
   options: TabularOptions = {},
 ): ParseResult {
   const currency = options.currency ?? "EUR";
-  const delimiter = detectDelimiter(text);
-  const grid = parseCsv(text, delimiter);
+  const detectedDelimiter = detectDelimiter(text);
+  const candidates = unique([detectedDelimiter, ";", ",", "\t"]);
+  const parsed = candidates.map((delimiter) => {
+    const grid = parseCsv(text, delimiter);
+    return { delimiter, grid, headerIdx: findHeaderRow(grid, spec) };
+  });
+  const selected = parsed.find((p) => p.headerIdx !== -1) ?? parsed[0];
+  const { delimiter, grid, headerIdx } = selected;
   const warnings: string[] = [];
 
   // Scan the whole grid (preamble included) for a reported closing balance.
@@ -59,10 +65,9 @@ export function parseTabular(
     }
   }
 
-  const headerIdx = findHeaderRow(grid, spec);
   if (headerIdx === -1) {
     const firstLines = grid.slice(0, 5).map((r) => r.join(delimiter)).join(" | ");
-    const delimLabel = delimiter === "\t" ? "TAB" : delimiter;
+    const delimLabel = detectedDelimiter === "\t" ? "TAB" : detectedDelimiter;
     return {
       rows: [],
       reportedBalanceCents,
@@ -125,6 +130,10 @@ export function parseTabular(
   }
 
   return { rows, reportedBalanceCents, reportedBalanceDate, warnings };
+}
+
+function unique(values: string[]): string[] {
+  return [...new Set(values)];
 }
 
 function findHeaderRow(grid: string[][], spec: ColumnSpec): number {

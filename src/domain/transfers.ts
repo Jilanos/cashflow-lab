@@ -41,6 +41,7 @@ export function detectInternalTransfers(
       if (debit.transferGroupId) continue;
       if (debit.accountId === credit.accountId) continue;
       if (dayGap(debit.bookingDate, credit.bookingDate) > maxDayGap) continue;
+      if (!looksLikeInternalTransfer(debit) || !looksLikeInternalTransfer(credit)) continue;
       const id = `xfer_${group++}`;
       debit.transferGroupId = id;
       credit.transferGroupId = id;
@@ -56,4 +57,10 @@ function dayGap(a: string, b: string): number {
   const db = Date.parse(b);
   if (Number.isNaN(da) || Number.isNaN(db)) return Number.POSITIVE_INFINITY;
   return Math.abs(da - db) / 86_400_000;
+}
+
+function looksLikeInternalTransfer(tx: Transaction): boolean {
+  const label = `${tx.rawLabel} ${tx.label}`.toLowerCase();
+  if (!label.includes("virement") && !label.includes("vir ")) return false;
+  return /\b(interne|livret|ldds|epargne|compte|depuis|vers)\b/.test(label);
 }

@@ -11,6 +11,7 @@ import { mergeImport } from "./dedup";
 import { detectInternalTransfers } from "./transfers";
 import { summarizeMonth } from "./analysis";
 import { computeBalances } from "./balances";
+import { legacyRowHash } from "./hash";
 import { DEFAULT_CATEGORIES, DEFAULT_CATEGORY_RULES, categoryById } from "./categories";
 import type { Account } from "./types";
 
@@ -36,7 +37,7 @@ describe("import pipeline", () => {
     const courses = transactions.find((t) => t.label.includes("CARREFOUR"))!;
     expect(courses.categoryId).toBe("cat_courses");
     expect(courses.merchant).toBeTruthy();
-    expect(courses.rowHash).toMatch(/^[0-9a-f]{8}$/);
+      expect(courses.rowHash).toContain("row:v2:");
   });
 
   it("deduplicates on re-import of overlapping rows", () => {
@@ -47,6 +48,39 @@ describe("import pipeline", () => {
     expect(added).toBe(1);
     expect(skipped).toBe(2);
     expect(merged).toHaveLength(6);
+  });
+
+  it("does not deduplicate distinct rows that share an old short hash", () => {
+    const first = importCa(CREDIT_AGRICOLE_SAMPLE, "ca_mars.csv");
+    const second = importCa(CREDIT_AGRICOLE_SAMPLE_OVERLAP, "ca_mars_v2.csv");
+    const incoming = {
+      ...second.transactions.find((t) => t.label.includes("LEROY MERLIN"))!,
+      rowHash: first.transactions[0].rowHash,
+    };
+    const { merged, added, skipped } = mergeImport(first.transactions, [incoming]);
+
+    expect(added).toBe(1);
+    expect(skipped).toBe(0);
+    expect(merged).toHaveLength(6);
+  });
+
+  it("deduplicates rows imported before canonical row keys", () => {
+    const first = importCa(CREDIT_AGRICOLE_SAMPLE, "ca_mars.csv");
+    const legacy = first.transactions.map((t) => ({
+      ...t,
+      rowHash: legacyRowHash(t.bank, t.accountId, {
+        bookingDate: t.bookingDate,
+        valueDate: t.valueDate,
+        label: t.rawLabel,
+        amountCents: t.amountCents,
+        currency: t.currency,
+      }),
+    }));
+    const second = importCa(CREDIT_AGRICOLE_SAMPLE, "ca_mars_again.csv");
+    const { added, skipped } = mergeImport(legacy, second.transactions);
+
+    expect(added).toBe(0);
+    expect(skipped).toBe(5);
   });
 });
 
@@ -79,6 +113,37 @@ describe("internal transfers", () => {
     expect(summary.totalSpendingCents).toBe(64605 + 19429);
     expect(summary.totalIncomeCents).toBe(230000);
     expect(summary.byCategory.find((b) => b.key === "cat_transfert")).toBeUndefined();
+  });
+
+  it("does not mark unrelated same-amount movements as internal transfers", () => {
+    const txs = detectInternalTransfers([
+      {
+        id: "debit",
+        accountId: "acc_ca",
+        bank: "credit_agricole",
+        bookingDate: "2024-03-10",
+        label: "PAIEMENT CB HOTEL",
+        rawLabel: "PAIEMENT CB HOTEL",
+        amountCents: -20000,
+        currency: "EUR",
+        rowHash: "debit",
+        importBatchId: "imp",
+      },
+      {
+        id: "credit",
+        accountId: "acc_ft",
+        bank: "fortuneo",
+        bookingDate: "2024-03-11",
+        label: "REMBOURSEMENT AMI",
+        rawLabel: "REMBOURSEMENT AMI",
+        amountCents: 20000,
+        currency: "EUR",
+        rowHash: "credit",
+        importBatchId: "imp",
+      },
+    ]);
+
+    expect(txs.some((t) => t.transferGroupId)).toBe(false);
   });
 });
 

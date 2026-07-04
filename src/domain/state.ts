@@ -7,7 +7,12 @@ import type {
   RecurringRule,
   Transaction,
 } from "./types";
-import { DEFAULT_CATEGORIES, DEFAULT_CATEGORY_RULES } from "./categories";
+import {
+  DEFAULT_CATEGORIES,
+  DEFAULT_CATEGORY_RULES,
+  mergeDefaultCategories,
+  mergeDefaultCategoryRules,
+} from "./categories";
 
 /** The full persisted application state. */
 export interface AppState {
@@ -29,5 +34,13 @@ export function emptyState(): AppState {
     batches: [],
     recurringRules: [],
     events: [],
+  };
+}
+
+export function withDefaultTaxonomy(state: AppState): AppState {
+  return {
+    ...state,
+    categories: mergeDefaultCategories(state.categories),
+    categoryRules: mergeDefaultCategoryRules(state.categoryRules),
   };
 }

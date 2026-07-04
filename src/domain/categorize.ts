@@ -11,7 +11,7 @@ export interface CategorizeResult {
  * invalid pattern are skipped rather than throwing.
  */
 export function categorize(label: string, rules: CategoryRule[]): CategorizeResult {
-  const haystack = label.toLowerCase();
+  const haystack = normalizeForMatch(label);
   const ordered = [...rules].sort((a, b) => a.priority - b.priority);
   for (const rule of ordered) {
     if (matches(haystack, rule)) {
@@ -22,12 +22,20 @@ export function categorize(label: string, rules: CategoryRule[]): CategorizeResu
 }
 
 function matches(haystack: string, rule: CategoryRule): boolean {
+  const pattern = normalizeForMatch(rule.pattern);
   if (rule.isRegex) {
     try {
-      return new RegExp(rule.pattern, "i").test(haystack);
+      return new RegExp(pattern, "i").test(haystack);
     } catch {
       return false;
     }
   }
-  return haystack.includes(rule.pattern.toLowerCase());
+  return haystack.includes(pattern);
+}
+
+function normalizeForMatch(input: string): string {
+  return input
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "");
 }

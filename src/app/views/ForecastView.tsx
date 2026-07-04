@@ -95,9 +95,13 @@ function RecurringRulesEditor({ store, cadences }: { store: AppStore; cadences: 
       cadence,
       startDate,
     };
-    await store.addRecurringRule(rule);
-    setLabel("");
-    setAmount("");
+    try {
+      await store.addRecurringRule(rule);
+      setLabel("");
+      setAmount("");
+    } catch {
+      // Store-level error banner explains the persistence failure.
+    }
   };
 
   return (
@@ -122,7 +126,7 @@ function RecurringRulesEditor({ store, cadences }: { store: AppStore; cadences: 
         <div><label>A partir du</label><input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} /></div>
       </div>
       <div className="row" style={{ marginTop: 12 }}>
-        <button onClick={add} disabled={!accountId}>Ajouter la regle</button>
+        <button onClick={() => void add()} disabled={!accountId}>Ajouter la regle</button>
       </div>
       {store.state.recurringRules.length > 0 && (
         <table style={{ marginTop: 14 }}>
@@ -133,7 +137,7 @@ function RecurringRulesEditor({ store, cadences }: { store: AppStore; cadences: 
                 <td>{r.label}</td>
                 <td>{r.cadence}</td>
                 <td className={`num ${r.amountCents < 0 ? "neg" : "pos"}`}>{formatCents(r.amountCents)}</td>
-                <td className="num"><button className="secondary" onClick={() => void store.removeRecurringRule(r.id)}>Suppr</button></td>
+                <td className="num"><button className="secondary" onClick={() => void store.removeRecurringRule(r.id).catch(() => undefined)}>Suppr</button></td>
               </tr>
             ))}
           </tbody>
@@ -159,9 +163,13 @@ function EventsEditor({ store }: { store: AppStore }) {
       label: label.trim() || "Evenement",
       amountCents: Math.round(euros * 100),
     };
-    await store.addEvent(event);
-    setLabel("");
-    setAmount("");
+    try {
+      await store.addEvent(event);
+      setLabel("");
+      setAmount("");
+    } catch {
+      // Store-level error banner explains the persistence failure.
+    }
   };
 
   return (
@@ -179,7 +187,7 @@ function EventsEditor({ store }: { store: AppStore }) {
         </div>
       </div>
       <div className="row" style={{ marginTop: 12 }}>
-        <button onClick={add} disabled={!accountId}>Ajouter l'evenement</button>
+        <button onClick={() => void add()} disabled={!accountId}>Ajouter l'evenement</button>
       </div>
       {store.state.events.length > 0 && (
         <table style={{ marginTop: 14 }}>
@@ -190,7 +198,7 @@ function EventsEditor({ store }: { store: AppStore }) {
                 <td>{e.date}</td>
                 <td>{e.label}</td>
                 <td className={`num ${e.amountCents < 0 ? "neg" : "pos"}`}>{formatCents(e.amountCents)}</td>
-                <td className="num"><button className="secondary" onClick={() => void store.removeEvent(e.id)}>Suppr</button></td>
+                <td className="num"><button className="secondary" onClick={() => void store.removeEvent(e.id).catch(() => undefined)}>Suppr</button></td>
               </tr>
             ))}
           </tbody>

@@ -12,6 +12,7 @@ import { detectParser, getParser } from "../parsers";
 import { buildImport } from "../domain/import";
 import { mergeImport } from "../domain/dedup";
 import { detectInternalTransfers } from "../domain/transfers";
+import { saveThenCommit } from "./persistence";
 
 export interface ImportOutcome {
   added: number;
@@ -23,6 +24,8 @@ export interface ImportOutcome {
 export interface AppStore {
   state: AppState;
   ready: boolean;
+  error: string | null;
+  clearError(): void;
   addAccount(account: Account): Promise<void>;
   importText(accountId: string, fileName: string, text: string): Promise<ImportOutcome>;
   setCategory(txId: string, categoryId: string | undefined): Promise<void>;
@@ -30,12 +33,14 @@ export interface AppStore {
   removeRecurringRule(id: string): Promise<void>;
   addEvent(event: ForecastEvent): Promise<void>;
   removeEvent(id: string): Promise<void>;
+  restoreState(next: AppState): Promise<void>;
   reset(): Promise<void>;
 }
 
 export function useAppStore(storage: StorageAdapter): AppStore {
   const [state, setState] = useState<AppState>(emptyState);
   const [ready, setReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -52,11 +57,19 @@ export function useAppStore(storage: StorageAdapter): AppStore {
 
   const persist = useCallback(
     async (next: AppState) => {
-      setState(next);
-      await storage.save(next);
+      try {
+        await saveThenCommit(storage, next, setState);
+        setError(null);
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        setError(`Sauvegarde locale impossible: ${message}`);
+        throw e;
+      }
     },
     [storage],
   );
+
+  const clearError = useCallback(() => setError(null), []);
 
   const addAccount = useCallback(
     async (account: Account) => {
@@ -134,16 +147,32 @@ export function useAppStore(storage: StorageAdapter): AppStore {
     [persist, state],
   );
 
+  const restoreState = useCallback(
+    async (next: AppState) => {
+      await persist(next);
+    },
+    [persist],
+  );
+
   const reset = useCallback(async () => {
-    await storage.reset();
-    const fresh = emptyState();
-    setState(fresh);
+    try {
+      await storage.reset();
+      const fresh = emptyState();
+      setState(fresh);
+      setError(null);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      setError(`Reinitialisation impossible: ${message}`);
+      throw e;
+    }
   }, [storage]);
 
   return useMemo(
     () => ({
       state,
       ready,
+      error,
+      clearError,
       addAccount,
       importText,
       setCategory,
@@ -151,8 +180,9 @@ export function useAppStore(storage: StorageAdapter): AppStore {
       removeRecurringRule,
       addEvent,
       removeEvent,
+      restoreState,
       reset,
     }),
-    [state, ready, addAccount, importText, setCategory, addRecurringRule, removeRecurringRule, addEvent, removeEvent, reset],
+    [state, ready, error, clearError, addAccount, importText, setCategory, addRecurringRule, removeRecurringRule, addEvent, removeEvent, restoreState, reset],
   );
 }

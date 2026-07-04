@@ -1,6 +1,4 @@
-// Deterministic, dependency-free string hash used for transaction row hashes.
-// FNV-1a 32-bit rendered as hex. Stable across runs and environments, which is
-// what deduplication across repeated imports needs.
+// Deterministic, dependency-free helpers used for transaction deduplication.
 
 export function fnv1aHex(input: string): string {
   let hash = 0x811c9dc5;
@@ -15,11 +13,20 @@ export function fnv1aHex(input: string): string {
 import type { Bank, RawTransaction } from "./types";
 
 /**
- * Row hash for deduplication. Two imports of the same underlying transaction
- * must produce the same hash, so it is built only from stable, source-derived
- * fields (bank, account, dates, label, amount) — never import metadata.
+ * Stable canonical row key for deduplication. This intentionally stores the
+ * normalized source fields instead of a short hash, so deduplication does not
+ * drop distinct rows because of a hash collision.
  */
 export function rowHash(bank: Bank, accountId: string, raw: RawTransaction): string {
+  return canonicalRowKey(bank, accountId, raw);
+}
+
+export function canonicalRowKey(bank: Bank, accountId: string, raw: RawTransaction): string {
+  return `row:v2:${JSON.stringify(rowKeyParts(bank, accountId, raw))}`;
+}
+
+/** Legacy 32-bit key kept only to dedupe rows imported before v2 keys. */
+export function legacyRowHash(bank: Bank, accountId: string, raw: RawTransaction): string {
   const key = [
     bank,
     accountId,
@@ -30,4 +37,16 @@ export function rowHash(bank: Bank, accountId: string, raw: RawTransaction): str
     raw.currency,
   ].join("|");
   return fnv1aHex(key);
+}
+
+function rowKeyParts(bank: Bank, accountId: string, raw: RawTransaction): unknown[] {
+  return [
+    bank,
+    accountId,
+    raw.bookingDate,
+    raw.valueDate ?? "",
+    raw.label.trim().toLowerCase().replace(/\s+/g, " "),
+    raw.amountCents,
+    raw.currency,
+  ];
 }
