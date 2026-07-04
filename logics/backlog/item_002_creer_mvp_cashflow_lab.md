@@ -1,10 +1,10 @@
 ## item_002_creer_mvp_cashflow_lab - Creer le MVP Cashflow Lab
 > From version: 1.0.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: Construire le premier MVP local-first de Cashflow Lab: importer les CSV disponibles, normaliser les transactions, recalculer les soldes depuis les transactions lorsque possible, presenter une analyse mensuelle des depenses et produire une prevision mensuelle de cashflow. Debit immediat uniquement au debut, categories initiales logement/courses/soirees/bricolage/sante/sport/loisirs, virements internes exclus des depenses, chiffrement differe.
 > Confidence: medium
-> Progress: Not started
+> Progress: 100%
 > Complexity: high
 > Theme: product
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -60,7 +60,7 @@ Build the first usable Cashflow Lab MVP without paid bank aggregation. The MVP s
 # Links
 - Product brief(s): `logics/product/prod_001_cashflow_lab_product_brief.md`
 - Architecture decision(s): `logics/architecture/adr_001_cashflow_lab_architecture_direction.md`
-- Request: `logics/request/req_000_cadrer_mvp_cashflow_lab.md`
+- Request: `req_000_cadrer_mvp_cashflow_lab`
 - Primary task(s): `task_002_creer_le_mvp_cashflow_lab`
 
 # AI Context
@@ -77,6 +77,7 @@ Build the first usable Cashflow Lab MVP without paid bank aggregation. The MVP s
 - Generated locally by logics-manager.
 - Do not start implementation until explicitly requested.
 - Raw bank CSV exports are local-only and must stay out of the public repository.
+- Task `task_002_creer_le_mvp_cashflow_lab` was finished via `logics-manager flow finish task` on 2026-07-04.
 
 # Tasks
 - `task_002_creer_le_mvp_cashflow_lab`

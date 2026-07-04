@@ -1,9 +1,9 @@
 ## prod_001_cashflow_lab_product_brief - Cashflow Lab product brief
 > Date: 2026-07-04
-> Status: Proposed
+> Status: Accepted
 > Related request: `req_000_cadrer_mvp_cashflow_lab`
-> Related backlog: `item_001_cadrer_le_mvp_cashflow_lab`, `item_002_creer_mvp_cashflow_lab`
-> Related task: `task_001_cadrer_le_mvp_cashflow_lab`, `task_002_creer_le_mvp_cashflow_lab`
+> Related backlog: `item_002_creer_mvp_cashflow_lab`
+> Related task: `task_002_creer_le_mvp_cashflow_lab`
 > Related architecture: `adr_001_cashflow_lab_architecture_direction`
 > Reminder: Update status, linked refs, scope, decisions, success signals, and open questions when you edit this doc.
 
@@ -69,14 +69,17 @@ flowchart TD
 - Categories: logement, courses, soirees, bricolage, sante, sport, loisirs.
 - Internal transfers: exclude from spending totals by default.
 - Encryption: second phase.
+- CSV coverage: Credit Agricole and Fortuneo exports exist locally now; LCL is not yet exported.
+- Parser sequencing: start with Credit Agricole and Fortuneo parsers; LCL parser is added once an LCL export is provided.
+- Persistence: start directly with SQLite (sql.js/WASM in the browser) behind a storage adapter.
+- Default monthly dashboard: total spending, category split, account split, and top merchants.
 
 # Remaining questions
-- Which local CSV corresponds to each bank and account type?
-- Are additional LCL or Fortuneo exports needed before parser implementation?
-- Should persistence start directly with SQLite or use browser storage for a smaller first prototype?
+- None blocking. Confirm the LCL export format once an LCL CSV is available.
 
 # References
 - Request: `req_000_cadrer_mvp_cashflow_lab`
 - Backlog: `item_001_cadrer_le_mvp_cashflow_lab`, `item_002_creer_mvp_cashflow_lab`
 - Architecture: `adr_001_cashflow_lab_architecture_direction`
-- Task back-reference: `task_001_cadrer_le_mvp_cashflow_lab`, `task_002_creer_le_mvp_cashflow_lab`
+- Task back-reference: `task_002_creer_le_mvp_cashflow_lab`
+- Product back-reference: `item_002_creer_mvp_cashflow_lab`

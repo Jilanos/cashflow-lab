@@ -6,3 +6,8 @@ DATA_banques/
 data/raw/
 private-data/
 *.csv
+
+# Build & dependency artifacts
+node_modules/
+dist/
+*.tsbuildinfo

@@ -1,6 +1,6 @@
 ## adr_001_cashflow_lab_architecture_direction - Cashflow Lab architecture direction
 > Date: 2026-07-04
-> Status: Proposed
+> Status: Accepted
 > Drivers: local-first privacy, CSV-first import, monthly deterministic forecast, later cloud optionality
 > Related request: `req_000_cadrer_mvp_cashflow_lab`
 > Related backlog: `item_001_cadrer_le_mvp_cashflow_lab`, `item_002_creer_mvp_cashflow_lab`
@@ -39,7 +39,9 @@ flowchart TD
 - Use deterministic monthly forecast rules for recurring movements and planned one-off events.
 - Put a storage adapter boundary around persistence so the first local store can evolve toward encrypted local storage or later sync.
 - Prefer React with Vite for the app shell unless repository constraints later point to another stack.
-- Prefer SQLite for durable local data once schemas are defined; a smaller browser-storage prototype is acceptable only for a throwaway spike.
+- Use SQLite (sql.js/WASM) for durable local data from the first slice, behind a storage adapter boundary; skip the throwaway browser-storage prototype.
+- Implement Credit Agricole and Fortuneo CSV parsers first (their exports exist locally); add the LCL parser once an LCL export is provided. Keep the canonical model and import pipeline bank-agnostic so LCL plugs in without schema changes.
+- The default monthly dashboard shows total spending, category split, account split, and top merchants.
 
 # Consequences
 - The MVP can deliver value without external banking APIs or recurring provider costs.

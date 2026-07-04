@@ -1,9 +1,9 @@
 ## req_000_cadrer_mvp_cashflow_lab - Cadrer le MVP Cashflow Lab
 > From version: 1.0.0
 > Schema version: 1.0
-> Status: Draft
+> Status: Done
 > Understanding: Initialiser Cashflow Lab comme app desktop navigateur local-first pour agreger manuellement via CSV les comptes courants, cartes, Livret A et LDDS de Credit Agricole, LCL et Fortuneo. Le premier objectif est le controle des depenses passees et la prevision mensuelle de cashflow futur, sans agregateur bancaire payant. Des CSV reels non anonymises existent localement hors repo public. Le MVP part sur debit immediat, soldes recalcules depuis les transactions et enrichis depuis les CSV si possible, categories initiales logement/courses/soirees/bricolage/sante/sport/loisirs, virements internes exclus des depenses, chiffrement reporte en second temps.
-> Confidence: medium
+> Confidence: high
 > Complexity: medium
 > Theme: product
 > Reminder: Update status/understanding/confidence and linked backlog/task references when you edit this doc.
@@ -14,7 +14,7 @@
 - Defer mobile/cloud access and paid bank aggregation until the core import and forecast workflow is useful.
 
 # Context
-- Target banks: Credit Agricole, LCL, and Fortuneo.
+- Target banks: Credit Agricole, LCL, and Fortuneo. Credit Agricole and Fortuneo CSV exports exist locally now; LCL export is pending and its parser follows once provided.
 - Target account types: current accounts, cards, Livret A, and LDDS.
 - Primary user value: understand past spending and anticipate future balances.
 - Cost constraint: avoid paid aggregation for the first version.
@@ -55,12 +55,13 @@
 - Categories: logement, courses, soirees, bricolage, sante, sport, loisirs.
 - Internal transfers: exclude from spending totals by default.
 - Encryption: second phase.
+- Available CSV coverage: Credit Agricole and Fortuneo exports are available locally now; LCL is not yet exported.
+- LCL handling: build parsers for Credit Agricole and Fortuneo first; add the LCL parser once an LCL export is provided. The canonical model and import pipeline stay bank-agnostic so LCL plugs in later.
+- Storage engine: use SQLite immediately (via sql.js/WASM in the browser) behind a storage adapter boundary, rather than a throwaway browser-storage prototype.
+- Default monthly dashboard: show all of total spending, category split, account split, and top merchants.
 
 # Remaining questions
-- Which local CSV corresponds to each bank and account type?
-- Are LCL and Fortuneo represented in the current local CSV set, or should additional exports be added before parser work starts?
-- Should the first implementation use SQLite immediately or browser storage for the fastest prototype?
-- What should the first monthly dashboard show by default: total spending, category split, account split, merchant list, or all of these?
+- None blocking implementation. Confirm the exact LCL export format when an LCL CSV becomes available.
 
 # References
 - `logics/product/prod_001_cashflow_lab_product_brief.md`

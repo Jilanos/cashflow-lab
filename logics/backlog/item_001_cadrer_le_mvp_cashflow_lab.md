@@ -1,10 +1,10 @@
 ## item_001_cadrer_le_mvp_cashflow_lab - Cadrer le MVP Cashflow Lab
 > From version: 1.0.0
 > Schema version: 1.0
-> Status: Ready
+> Status: Done
 > Understanding: 95
 > Confidence: 90
-> Progress: 90
+> Progress: 100%
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
@@ -50,8 +50,8 @@ The project needed a precise MVP backlog before implementation starts. Core prod
 # Links
 - Product brief(s): `logics/product/prod_001_cashflow_lab_product_brief.md`
 - Architecture decision(s): `logics/architecture/adr_001_cashflow_lab_architecture_direction.md`
-- Request: `logics/request/req_000_cadrer_mvp_cashflow_lab.md`
-- Primary task(s): `task_001_cadrer_le_mvp_cashflow_lab`, `task_002_creer_le_mvp_cashflow_lab`
+- Request: `req_000_cadrer_mvp_cashflow_lab`
+- Primary task(s): `task_001_cadrer_le_mvp_cashflow_lab`
 
 # AI Context
 - Summary: Cadrer le MVP Cashflow Lab
@@ -68,6 +68,7 @@ The project needed a precise MVP backlog before implementation starts. Core prod
 - Source file: `logics/request/req_000_cadrer_mvp_cashflow_lab.md`.
 - Generated locally by logics-manager.
 - User answers received on 2026-07-04 and reflected in the request, product brief, architecture direction, and MVP backlog.
+- Task `task_001_cadrer_le_mvp_cashflow_lab` was finished via `logics-manager flow finish task` on 2026-07-04.
 
 # Tasks
 - `task_001_cadrer_le_mvp_cashflow_lab`
