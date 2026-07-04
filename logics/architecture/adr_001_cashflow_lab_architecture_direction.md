@@ -1,10 +1,10 @@
 ## adr_001_cashflow_lab_architecture_direction - Cashflow Lab architecture direction
 > Date: 2026-07-04
 > Status: Proposed
-> Drivers: local-first privacy, CSV-first import, deterministic forecast, later cloud optionality
+> Drivers: local-first privacy, CSV-first import, monthly deterministic forecast, later cloud optionality
 > Related request: `req_000_cadrer_mvp_cashflow_lab`
-> Related backlog: (none yet)
-> Related task: (none yet)
+> Related backlog: `item_001_cadrer_le_mvp_cashflow_lab`, `item_002_creer_mvp_cashflow_lab`
+> Related task: `task_001_cadrer_le_mvp_cashflow_lab`, `task_002_creer_le_mvp_cashflow_lab`
 > Reminder: Update status, linked refs, decision rationale, consequences, and follow-up work when you edit this doc.
 
 # Overview
@@ -27,11 +27,16 @@ flowchart TD
 - Primary needs are expense control and future cashflow forecasting.
 - Cloud and mobile access may matter later, but the MVP should not depend on them.
 - The app must not store bank credentials or scrape banking portals.
+- Real non-anonymized CSV exports are available locally outside the public repository; raw data must remain out of Git.
+- Card handling starts with debit immediate only.
+- Forecasting starts at monthly granularity.
+- Balances should be recalculated from transactions and enriched from CSV balance data if available.
+- Local encryption is deferred to a second phase.
 
 # Decision
 - Build a local-first browser app, initially served locally during development.
 - Use bank-specific CSV parser modules feeding a canonical transaction model.
-- Use deterministic forecast rules for recurring movements and planned one-off events.
+- Use deterministic monthly forecast rules for recurring movements and planned one-off events.
 - Put a storage adapter boundary around persistence so the first local store can evolve toward encrypted local storage or later sync.
 - Prefer React with Vite for the app shell unless repository constraints later point to another stack.
 - Prefer SQLite for durable local data once schemas are defined; a smaller browser-storage prototype is acceptable only for a throwaway spike.
@@ -50,11 +55,13 @@ flowchart TD
 - Detect duplicates across repeated imports.
 - Support category assignment through editable rules.
 - Detect and model internal transfers between owned accounts.
+- Exclude internal transfers from spending totals by default.
 - Show spending by month, category, account, and merchant.
 - Define recurring rules with amount, cadence, account, category, start date, and optional end date.
 - Define one-off forecast events.
 - Compute projected balances per account and globally.
 - Export normalized transactions and forecast assumptions.
+- Provide default categories: logement, courses, soirees, bricolage, sante, sport, loisirs.
 
 # Data model draft
 - `Account`: bank, account type, display name, currency, opening balance policy.
@@ -73,16 +80,16 @@ flowchart TD
 - Add import preview and deduplication.
 - Add category rules.
 - Add monthly spending view.
-- Add 3 to 12 month recurring-rule forecast.
+- Add 3 to 12 month recurring-rule forecast at monthly granularity.
 
 # Risks
 - CSV formats may differ by bank, account type, language, and export option.
-- Deferred debit cards may distort monthly cashflow if modeled too simply.
+- Future deferred debit card support may distort monthly cashflow if modeled too simply.
 - Internal transfers may inflate spending unless excluded from expense views.
 - Forecasts can look precise while relying on incomplete assumptions.
-- Local data at rest may need encryption before real financial history is imported.
+- The public repository must not receive raw private CSV files or filenames containing private identifiers.
 
 # References
 - Related request: `req_000_cadrer_mvp_cashflow_lab`
-- Related backlog: `item_001_cadrer_le_mvp_cashflow_lab`
-- Related task: `task_001_cadrer_le_mvp_cashflow_lab`
+- Related backlog: `item_001_cadrer_le_mvp_cashflow_lab`, `item_002_creer_mvp_cashflow_lab`
+- Related task: `task_001_cadrer_le_mvp_cashflow_lab`, `task_002_creer_le_mvp_cashflow_lab`

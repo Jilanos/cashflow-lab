@@ -1,2 +1,8 @@
 AGENTS.md
 LOGICS.md
+
+# Private banking exports and local raw data must not be committed.
+DATA_banques/
+data/raw/
+private-data/
+*.csv

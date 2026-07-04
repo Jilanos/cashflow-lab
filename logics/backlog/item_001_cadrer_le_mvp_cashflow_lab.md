@@ -2,15 +2,15 @@
 > From version: 1.0.0
 > Schema version: 1.0
 > Status: Ready
-> Understanding: 90%
-> Confidence: 85%
-> Progress: 0%
+> Understanding: 95
+> Confidence: 90
+> Progress: 90
 > Complexity: High
 > Theme: Operator workflow and runtime integration
 > Reminder: Update status/understanding/confidence/progress and linked request/task references when you edit this doc.
 
 # Problem
-The project needs a precise MVP backlog before implementation starts. The current product direction is clear at a high level, but several decisions remain open: CSV formats, card modeling, forecast granularity, category defaults, balance source, and local data protection.
+The project needed a precise MVP backlog before implementation starts. Core product decisions are now captured: real CSV data is local and private, card handling starts with debit immediate, forecast starts monthly, balances are recalculated from transactions and enriched from CSV if possible, categories start with logement/courses/soirees/bricolage/sante/sport/loisirs, internal transfers are excluded from expenses, and encryption is deferred.
 
 # Scope
 - In:
@@ -51,7 +51,7 @@ The project needs a precise MVP backlog before implementation starts. The curren
 - Product brief(s): `logics/product/prod_001_cashflow_lab_product_brief.md`
 - Architecture decision(s): `logics/architecture/adr_001_cashflow_lab_architecture_direction.md`
 - Request: `logics/request/req_000_cadrer_mvp_cashflow_lab.md`
-- Primary task(s): (none yet)
+- Primary task(s): `task_001_cadrer_le_mvp_cashflow_lab`, `task_002_creer_le_mvp_cashflow_lab`
 
 # AI Context
 - Summary: Cadrer le MVP Cashflow Lab
@@ -67,6 +67,7 @@ The project needs a precise MVP backlog before implementation starts. The curren
 - Hybrid rationale: Derived from request `req_000_cadrer_mvp_cashflow_lab` and kept bounded to one coherent delivery slice.
 - Source file: `logics/request/req_000_cadrer_mvp_cashflow_lab.md`.
 - Generated locally by logics-manager.
+- User answers received on 2026-07-04 and reflected in the request, product brief, architecture direction, and MVP backlog.
 
 # Tasks
 - `task_001_cadrer_le_mvp_cashflow_lab`
