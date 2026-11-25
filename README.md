@@ -1,39 +1,48 @@
 # Cashflow Lab
 
-Cashflow Lab is a personal finance planning tool focused on local-first expense tracking and forward-looking cashflow forecasting.
+A local-first web app that turns French bank CSV exports into a monthly spending review and a 3 to 12 month cashflow forecast.
 
-## Initial Scope
+## Problem and audience
 
-- Import transactions from CSV exports for Credit Agricole, LCL, Fortuneo, current accounts, cards, Livret A, and LDDS.
-- Normalize bank exports into a common transaction model.
-- Track spending by month, account, merchant, and category.
-- Forecast upcoming months from recurring income, recurring expenses, known one-off events, and manual assumptions.
-- Keep the first version local and browser-based, with optional mobile/cloud access considered later.
+Anyone who keeps several bank accounts and wants to see where the money goes, and what the next months look like, without paying for a bank aggregation service or sending data to a cloud. You import the CSV files your banks let you download. Everything stays in your browser.
 
-## Current Status
+## Features
 
-The first local-first MVP is implemented (Vite + React + TypeScript, SQLite via sql.js).
+- CSV import for Credit Agricole and Fortuneo, with automatic encoding detection and parser diagnostics. An LCL parser is planned once an export is available.
+- Common transaction model: normalization, deduplication, categorization, account attachment, transfer detection.
+- Balances recalculated from transactions, cross-checked with balances reported in the CSV.
+- Monthly spending dashboard by category, account and top merchants, with budget periods, filters, pie charts and editable categories.
+- Deterministic forecast from recurring rules and one-off events.
+- Export as JSON backup, transactions CSV, or the raw SQLite database.
 
-- Import CSV exports from Credit Agricole and Fortuneo (LCL parser to follow once an export is available).
-- Normalize, deduplicate, categorize, and attach transactions to accounts.
-- Recalculate balances from transactions, enriched by CSV-reported balances.
-- Monthly spending dashboard (total, category, account, top merchants) with editable categories.
-- Deterministic 3-12 month cashflow forecast from recurring rules and one-off events.
-- Export a JSON backup, a transactions CSV, or the raw SQLite database. Data stays on your machine.
+## Quick start
 
-Logics workflow docs:
-
-- Product brief: `logics/product/prod_001_cashflow_lab_product_brief.md`
-- Architecture and requirements direction: `logics/architecture/adr_001_cashflow_lab_architecture_direction.md`
-
-## Getting started
+Requires Node.js and npm.
 
 ```bash
 npm install
-npm run dev      # local dev server
-npm test         # run the test suite
-npm run build    # typecheck + production build
+npm run dev      # local dev server (Vite)
+npm test         # Vitest suite
+npm run build    # typecheck and production build
 ```
 
-Real bank exports are private and must never be committed. `DATA_banques/`, `data/raw/`, and `*.csv`
-are gitignored. Import your files through the app UI; they are stored locally in your browser only.
+Then open the URL printed by Vite and import a CSV from the UI.
+
+## Privacy
+
+Data is stored locally in your browser (SQLite compiled to WebAssembly through sql.js). Real bank exports are private and must never be committed: `DATA_banques/`, `data/raw/` and `*.csv` are gitignored.
+
+## Tech stack
+
+React 18, TypeScript, Vite, sql.js, Vitest.
+
+## Status
+
+Working local MVP, personal project. No hosted demo. Cloud sync, mobile access and data-at-rest encryption are out of scope for now.
+
+## Project docs
+
+The project uses Logics workflow docs:
+
+- Product brief: `logics/product/prod_001_cashflow_lab_product_brief.md`
+- Architecture direction: `logics/architecture/adr_001_cashflow_lab_architecture_direction.md`
